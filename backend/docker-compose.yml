@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: unb-db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: ru
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+      # 2. Mounts your local 'sql' folder to the container's initialization directory.
+      #    Any .sql files in this directory will be automatically executed by the
+      #    PostgreSQL image ONLY when the database is first created.
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - unb-network
+
+volumes:
+  db-data:
+
+networks:
+  unb-network:

@@ -1,14 +1,17 @@
 # Backend - Banco de Dados para Restaurantes Universitários
 
-Este é o repositório do backend para o projeto da disciplina de Banco de Dados. O projeto utiliza uma stack com Node.js, Express, TypeScript e SQL puro para se conectar a um banco de dados relacional.
+Este é o repositório do backend para o projeto da disciplina de Banco de Dados. O projeto utiliza uma stack com Node.js, Express, TypeScript e SQL puro para se conectar a um banco de dados PostgreSQL, com o ambiente de desenvolvimento gerenciado por Docker.
 
 ## Stack Principal
 
 -   **Node.js**: Ambiente de execução JavaScript.
 -   **Express.js**: Framework para construção do servidor e das rotas da API.
 -   **TypeScript**: Superset do JavaScript que adiciona tipagem estática.
--   **PostgreSQL**: Banco de dados relacional (pode ser substituído por outro SGBD relacional).
+-   **PostgreSQL**: Banco de dados relacional rodando em um container Docker.
+-   **Docker & Docker Compose**: Ferramentas para criação e gerenciamento do ambiente de desenvolvimento.
 -   **pnpm**: Gerenciador de pacotes.
+
+---
 
 ## Estrutura de Pastas
 
@@ -30,60 +33,86 @@ A estrutura do projeto foi pensada para ser escalável e organizada, separando a
 └── tsconfig.json        # Configurações do compilador TypeScript.
 ```
 
--   **`sql/`**: Contém os scripts `.sql` para inicializar o banco de dados. Execute-os antes de iniciar a aplicação pela primeira vez.
+-   **`sql/`**: Contém os scripts `.sql` para inicializar o banco de dados. **Este diretório é montado no Docker e executado automaticamente na primeira inicialização do container.**
 -   **`src/api/`**: Cada arquivo aqui define um grupo de rotas (ex: `restaurante.routes.ts`). É aqui que a documentação Swagger é escrita usando comentários JSDoc.
 -   **`src/controllers/`**: Faz a ponte entre as rotas e os serviços. Ele extrai dados da requisição (`req`), chama o serviço apropriado e formata a resposta (`res`).
--   **`src/services/`**: Onde a "mágica" acontece. Contém as funções com as queries SQL para interagir com o banco de dados (CRUD: Create, Read, Update, Delete).
--   **`src/db/`**: Configura e exporta o *pool* de conexões com o banco de dados, garantindo uma gestão eficiente das conexões.
+-   **`src/services/`**: Onde a lógica de negócio reside. Contém as funções com as queries SQL para interagir com o banco de dados (CRUD: Create, Read, Update, Delete).
+-   **`src/db/`**: Configura e exporta o *pool* de conexões com o banco de dados.
 
-## Pré-requisitos
+---
 
-Antes de começar, garanta que você tenha instalado:
+## Como Rodar o Projeto (Ambiente Docker)
+
+Para garantir um ambiente de desenvolvimento consistente para toda a equipe, o uso de Docker para o banco de dados é o método padrão.
+
+### Pré-requisitos
 
 -   [Node.js](https://nodejs.org/) (versão 18 ou superior)
 -   [pnpm](https://pnpm.io/installation)
--   Um servidor de banco de dados PostgreSQL (ou o SGBD de sua escolha) rodando localmente ou em um container Docker.
+-   [Docker](https://www.docker.com/products/docker-desktop/) instalado e em execução na sua máquina.
 
-## Como Rodar o Projeto
+### Passos para Iniciar
 
-1.  **Clone o repositório e navegue até a pasta do backend:**
+1.  **Clone o repositório:**
 
     ```bash
     git clone <url-do-repositorio>
-    cd <nome-do-projeto>/backend
+    cd <nome-do-projeto>
     ```
 
-2.  **Instale as dependências:**
+2.  **Configure as Variáveis de Ambiente do Backend:**
+    -   Navegue até a pasta `backend`.
+    -   Crie um arquivo `.env` e adicione as seguintes variáveis. **Elas devem ser idênticas às definidas no arquivo `docker-compose.yml` na raiz do projeto.**
 
-    ```bash
-    pnpm install
-    ```
-
-3.  **Configure as variáveis de ambiente:**
-    -   Crie um novo arquivo chamado `.env` na raiz da pasta `/backend`.
-    -   Adicione a URL de conexão do seu banco de dados:
         ```
-        # .env
+        # /backend/.env
         PORT=3001
-        DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/banco_restaurantes_unb"
+        DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/ru"
         ```
 
-4.  **Prepare o Banco de Dados:**
-    -   Crie o banco de dados no seu SGBD com o nome que você definiu na `DATABASE_URL`.
-    -   Execute o script `sql/init.sql` no seu banco de dados para criar as tabelas iniciais. O projeto deve conter no mínimo 10 entidades e cada uma deve ter no mínimo 5 registros.
+3.  **Inicie o Container do Banco de Dados:**
+    -   Volte para a **raiz do projeto** (a pasta que contém `docker-compose.yml`).
+    -   Execute o seguinte comando para iniciar o container do PostgreSQL em segundo plano:
 
-5.  **Inicie o servidor de desenvolvimento:**
+        ```bash
+        docker-compose up -d
+        ```
+    -   **Execução do `init.sql`**: Na primeira vez que você executar este comando, o Docker irá baixar a imagem do PostgreSQL, criar o container e **executar automaticamente todos os scripts do diretório `backend/sql`**, configurando o banco de dados. Nas vezes seguintes, ele apenas iniciará o container existente, preservando todos os dados.
 
-    ```bash
-    pnpm dev
-    ```
+4.  **Instale as Dependências e Inicie o Servidor Backend:**
+    -   Navegue até a pasta `backend`.
+    -   Instale as dependências e inicie o servidor:
+        ```bash
+        cd backend
+        pnpm install
+        pnpm dev
+        ```
 
-    O servidor estará rodando em `http://localhost:3001`.
+O servidor do backend estará rodando em `http://localhost:3001` e conectado ao banco de dados no container Docker.
+
+---
 
 ## Documentação da API (Swagger)
 
-A API é autodocumentada usando Swagger. Com o servidor rodando, acesse a seguinte URL no seu navegador para ver a documentação interativa:
+A API é autodocumentada usando Swagger. Com o servidor rodando, acesse a seguinte URL no seu navegador para ver a documentação interativa, testar os endpoints e ver os modelos de dados:
 
--   **`http://localhost:3001/api-docs`**
+-   **URL:** [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
 
-Você poderá ver todos os endpoints, seus parâmetros, e até mesmo testá-los diretamente pela interface do Swagger.
+---
+
+## Comandos Úteis do Docker
+
+Execute estes comandos a partir da **raiz do projeto**.
+
+-   **Para parar o container do banco de dados:**
+    ```bash
+    docker-compose down   ou docker compose
+    ```
+-   **Para ver os logs do banco de dados em tempo real:**
+    ```bash
+    docker-compose logs -f postgres
+    ```
+-   **Para apagar completamente o container e os dados do banco de dados (use com cuidado!):**
+    ```bash
+    docker-compose down -v
+    
