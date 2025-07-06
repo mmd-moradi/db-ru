@@ -1,0 +1,11 @@
+# .gitignore
+
+# Dependencies
+node_modules/
+
+# Compiled JavaScript output
+dist/
+
+# Environment variables
+.env
+.env.local
