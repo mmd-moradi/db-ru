@@ -115,4 +115,29 @@ Execute estes comandos a partir da **raiz do projeto**.
 -   **Para apagar completamente o container e os dados do banco de dados (use com cuidado!):**
     ```bash
     docker-compose down -v
-    
+
+### Testes end‑to‑end com **shUnit2**
+
+O repositório traz um script de integração (`backend/tests/crud_test.sh`) que
+dispara todas as operações de CRUD nas tabelas Restaurante, Usuário e Ticket,
+além de validar débito de saldo e a rejeição por saldo insuficiente.
+
+Ele foi escrito em Bash com [shUnit2](https://github.com/kward/shunit2); o `jq`
+formata as respostas JSON e o `psql` faz verificações diretas no banco.
+
+pra executar os testes você **PRECISA** que:
+
+1. O container **PostgreSQL** esteja de pé (`docker‑compose up -d` na raiz).
+2. O backend já esteja rodando em `localhost:3001` (por exemplo com `pnpm dev`
+   dentro de `/backend`).
+3. O pacote `shunit2` esteja instalado no sistema (em Debian/Ubuntu: `sudo
+   apt install shunit2`; em outras distros, clone o repositório oficial pra
+   qualquer pasta e ajuste o path no final do script).
+4. O utilitário `jq` esteja presente (`sudo apt install jq`).
+
+Depois disso basta:
+
+```bash
+cd backend
+./tests/crud_test.sh
+```
