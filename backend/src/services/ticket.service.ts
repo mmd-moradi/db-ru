@@ -1,53 +1,56 @@
-import pool from '../db';
+import { query } from '../db';
 
-export const create = async (
-  usuarioId: number,
-  restauranteId: number,
-  categoriaTicketId: number,
-  preco: number
-) => {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+// Interface for the Ticket object
+export interface Ticket {
+    ticket_id: number;
+    usuario_id: number;
+    transacao_id: number;
+    tipo_ticket_id: number;
+}
 
-    // SELECT usa o nome correto da coluna
-    const saldoRes = await client.query(
-      'SELECT saldoatual FROM usuario WHERE usuarioid = $1 FOR UPDATE',
-      [usuarioId]
-    );
-    if (!saldoRes.rowCount) throw new Error('usuario_nao_existe');
+/**
+ * Finds all tickets. Useful for an admin view.
+ * @returns A promise that resolves to an array of Ticket objects.
+ */
+export const findAll = async (): Promise<Ticket[]> => {
+    // Joining with other tables to provide more context
+    const { rows } = await query(`
+        SELECT 
+            t.ticket_id, 
+            t.usuario_id, 
+            u.nome AS nome_usuario,
+            t.transacao_id, 
+            t.tipo_ticket_id, 
+            tt.nome_tipo,
+            tr.data_hora AS data_compra
+        FROM tickets t
+        JOIN usuarios u ON t.usuario_id = u.usuario_id
+        JOIN tipos_ticket tt ON t.tipo_ticket_id = tt.tipo_ticket_id
+        JOIN transacoes tr ON t.transacao_id = tr.transacao_id
+        ORDER BY tr.data_hora DESC
+    `);
+    return rows;
+};
 
-    const saldo = saldoRes.rows[0].saldoatual as number;
-    if (saldo < preco) throw new Error('saldo_insuficiente');
-
-    await client.query(
-      'UPDATE usuario SET saldoatual = saldoatual - $1 WHERE usuarioid = $2',
-      [preco, usuarioId]
-    );
-
-    const trx = (
-      await client.query(
-        `INSERT INTO transacao (valor,datahora,tipotransacao,usuarioid,restauranteid)
-         VALUES ($1,NOW(),'COMPRA',$2,$3) RETURNING transacaoid`,
-        [preco, usuarioId, restauranteId]
-      )
-    ).rows[0];
-
-    const tk = (
-      await client.query(
-        `INSERT INTO ticket (datacompra,status,transacaoid,categoriaticketid)
-         VALUES (NOW(),'ATIVO',$1,$2) RETURNING *`,
-        [trx.transacaoid, categoriaTicketId]
-      )
-    ).rows[0];
-
-    await client.query('COMMIT');
-    return tk;
-  } catch (e: any) {
-    await client.query('ROLLBACK');
-    if (e.message === 'saldo_insuficiente') throw { code: 'SALDO' };
-    throw e;
-  } finally {
-    client.release();
-  }
+/**
+ * Finds all tickets belonging to a specific user.
+ * @param usuario_id The ID of the user.
+ * @returns A promise that resolves to an array of the user's tickets.
+ */
+export const findByUser = async (usuario_id: number): Promise<Ticket[]> => {
+    const { rows } = await query(`
+        SELECT 
+            t.ticket_id, 
+            t.usuario_id, 
+            t.transacao_id, 
+            t.tipo_ticket_id, 
+            tt.nome_tipo,
+            tr.data_hora AS data_compra
+        FROM tickets t
+        JOIN tipos_ticket tt ON t.tipo_ticket_id = tt.tipo_ticket_id
+        JOIN transacoes tr ON t.transacao_id = tr.transacao_id
+        WHERE t.usuario_id = $1
+        ORDER BY tr.data_hora DESC
+    `, [usuario_id]);
+    return rows;
 };
