@@ -24,10 +24,35 @@ export interface UserCreateData {
     saldo?: number;
 }
 
-export const findAll = async (): Promise<Omit<User, 'senha_hash' | 'foto_perfil'>[]> => {
+export interface UserListDTO {
+    usuario_id: number;
+    grupo_id: number;
+    nome: string;
+    matricula: string;
+    email: string;
+    saldo: number;
+    foto_perfil?: string;
+    data_criacao: Date;
+}
+
+
+export const findAll = async (): Promise<UserListDTO[]> => {
     // Exclude sensitive data from the general list
-    const { rows } = await query('SELECT usuario_id, grupo_id, nome, matricula, email, saldo, data_criacao FROM usuarios ORDER BY nome ASC');
-    return rows;
+    const { rows } = await query('SELECT usuario_id, grupo_id, nome, matricula, email, saldo, data_criacao, foto_perfil FROM usuarios ORDER BY nome ASC');
+
+    return rows.map((user: User) => {
+      const userDTO: UserListDTO = {
+        usuario_id: user.usuario_id,
+        grupo_id: user.grupo_id,
+        nome: user.nome,
+        matricula: user.matricula,
+        email: user.email,
+        saldo: user.saldo,
+        foto_perfil: user.foto_perfil ? `data:image/jpeg;base64,${user.foto_perfil.toString('base64')}` : undefined,
+        data_criacao: user.data_criacao
+      }
+      return userDTO;
+    })
 };
 
 export const findById = async (id: number): Promise<Omit<User, 'senha_hash'> | null> => {
@@ -81,3 +106,4 @@ export const findByEmail = async (email: string): Promise<User | null> => {
   const { rows } = await query('SELECT * FROM usuarios WHERE email = $1', [email]);
   return rows[0] || null;
 };
+

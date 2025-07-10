@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { User } from '../data/schema'
+import { useDeleteUser } from '../api/users-api'
 
 interface Props {
   open: boolean
@@ -17,11 +18,13 @@ interface Props {
 
 export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
   const [value, setValue] = useState('')
+  const deleteMutate = useDeleteUser()
 
   const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
+    if (value.trim() !== currentRow.matricula) return
 
     onOpenChange(false)
+    deleteMutate.mutate(currentRow.usuario_id)
     showSubmittedData(currentRow, 'The following user has been deleted:')
   }
 
@@ -30,7 +33,7 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
+      disabled={value.trim() !== currentRow.matricula}
       title={
         <span className='text-destructive'>
           <IconAlertTriangle
@@ -43,31 +46,19 @@ export function UsersDeleteDialog({ open, onOpenChange, currentRow }: Props) {
       desc={
         <div className='space-y-4'>
           <p className='mb-2'>
-            Are you sure you want to delete{' '}
-            <span className='font-bold'>{currentRow.username}</span>?
+            Voce tem certeza que deseja excluir o usuário{' '}
+            <span className='font-bold'>{currentRow.nome}</span>?
             <br />
-            This action will permanently remove the user with the role of{' '}
-            <span className='font-bold'>
-              {currentRow.role.toUpperCase()}
-            </span>{' '}
-            from the system. This cannot be undone.
           </p>
 
           <Label className='my-2'>
-            Username:
+            Matricula:
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder='Enter username to confirm deletion.'
+              placeholder='20230001'
             />
           </Label>
-
-          <Alert variant='destructive'>
-            <AlertTitle>Warning!</AlertTitle>
-            <AlertDescription>
-              Please be carefull, this operation can not be rolled back.
-            </AlertDescription>
-          </Alert>
         </div>
       }
       confirmText='Delete'

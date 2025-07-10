@@ -30,8 +30,8 @@ export const sidebarData: SidebarData = {
           icon: IconLayoutDashboard,
         },
         {
-          title: 'Estudantes',
-          url: '/students',
+          title: 'Usuários',
+          url: '/users',
           icon: IconUsers
         },
         {

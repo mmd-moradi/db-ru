@@ -4,6 +4,7 @@ import {
     getMenuByDate,
     addItemToMenu,
     removeItemFromMenu,
+    deleteMenu,
 } from '../controllers/menu.controller';
 
 const router = Router();
@@ -163,5 +164,45 @@ router.post('/:cardapio_id/items', addItemToMenu);
  *         description: Item removed from menu successfully.
  */
 router.delete('/:cardapio_id/items/:item_id', removeItemFromMenu);
+
+/**
+ * @swagger
+ * /api/menus/{cardapio_id}:
+ *   delete:
+ *     summary: Delete an entire menu
+ *     tags: [Cardápio - Gerenciamento]
+ *     parameters:
+ *       - in: path
+ *         name: cardapio_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '204':
+ *         description: Menu deleted successfully.
+ *       '500':
+ *         description: Error deleting menu.
+ */
+router.delete('/:cardapio_id', deleteMenu);
+
+/**
+ * @swagger
+ * /api/menus/{cardapio_id}:
+ *   delete:
+ *     summary: Delete an entire menu
+ *     tags: [Cardápio - Gerenciamento]
+ *     parameters:
+ *       - in: path
+ *         name: cardapio_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '204':
+ *         description: Menu deleted successfully.
+ *       '500':
+ *         description: Error deleting menu.
+ */
+router.delete('/:cardapio_id', deleteMenu);
 
 export default router;

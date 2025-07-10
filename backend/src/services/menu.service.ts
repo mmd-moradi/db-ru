@@ -84,3 +84,16 @@ export const removeItemFromMenu = async (cardapio_id: number, item_id: number): 
         [cardapio_id, item_id]
     );
 };
+
+/**
+ * Deletes a menu and all of its item associations.
+ * @param cardapio_id The ID of the menu to delete.
+ * @returns A promise that resolves when the menu has been deleted.
+ */
+export const deleteMenu = async (cardapio_id: number): Promise<void> => {
+    // First delete all associations in the cardapio_item join table
+    await query('DELETE FROM cardapio_item WHERE cardapio_id = $1', [cardapio_id]);
+    
+    // Then delete the menu itself
+    await query('DELETE FROM cardapios WHERE cardapio_id = $1', [cardapio_id]);
+};
