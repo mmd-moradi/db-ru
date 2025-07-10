@@ -7,6 +7,7 @@ import { User } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UsersBuyTicketButton } from './users-buy-ticket-button'
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -96,8 +97,22 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Saldo' />
     ),
-    cell: ({ row }) => <div>R${row.getValue('saldo')}</div>,
+    cell: ({ row }) => {
+      const saldo = parseFloat(row.getValue('saldo'));
+      // Format as Brazilian currency
+      const formatted = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(saldo);
+      return <div>{formatted}</div>;
+    },
     enableSorting: false,
+  },
+  {
+    id: 'buy_ticket',
+    header: () => <div className="text-right">Comprar</div>,
+    cell: ({ row }) => <UsersBuyTicketButton row={row} />,
+    meta: { className: 'justify-center lg:justify-end' },
   },
   {
     id: 'actions',
