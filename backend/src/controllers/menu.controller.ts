@@ -73,3 +73,13 @@ export const removeItemFromMenu = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error removing item from menu', error: error.message });
     }
 };
+
+export const deleteMenu = async (req: Request, res: Response) => {
+    try {
+        const cardapio_id = parseInt(req.params.cardapio_id, 10);
+        await menuService.deleteMenu(cardapio_id);
+        res.status(204).send();
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error deleting menu', error: error.message });
+    }
+};
