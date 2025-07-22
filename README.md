@@ -2,7 +2,7 @@
 
 Este é um projeto fullstack para gerenciamento de um Restaurante Universitário, desenvolvido com Node.js/Express no backend e React no frontend.
 
-## Modelagem
+## Modelagem de Banco
 <img width="773" height="650" alt="Image" src="https://github.com/user-attachments/assets/1486f231-8d00-4df0-9266-4ddf9115be88" />
 
 ## Telas
