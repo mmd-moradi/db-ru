@@ -2,6 +2,13 @@
 
 Este é um projeto fullstack para gerenciamento de um Restaurante Universitário, desenvolvido com Node.js/Express no backend e React no frontend.
 
+## Modelagem
+
+
+## Telas
+
+
+
 ## Estrutura do Projeto
 
 O projeto está dividido em duas pastas principais:
