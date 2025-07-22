@@ -6,7 +6,9 @@ Este é um projeto fullstack para gerenciamento de um Restaurante Universitário
 <img width="773" height="650" alt="Image" src="https://github.com/user-attachments/assets/1486f231-8d00-4df0-9266-4ddf9115be88" />
 
 ## Telas
+<img width="1366" height="621" alt="Image" src="https://github.com/user-attachments/assets/ddce70fa-4689-48f5-8c62-6aa8e4c6bbcc" />
 
+<img width="1366" height="621" alt="Image" src="https://github.com/user-attachments/assets/76e1adb8-71f5-4769-aae9-35754fab5281" />
 
 
 ## Estrutura do Projeto
